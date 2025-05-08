@@ -25,12 +25,12 @@ function Furniture({ id, type, position, rotation, scale, color, onUpdate, onSel
   const material = useMemo(() => (
     new THREE.MeshStandardMaterial({ 
       color: color,
-      roughness: 0.7,
-      metalness: 0.3,
-      opacity: 1,
-      transparent: false
+      roughness: materials?.roughness || 0.7,
+      metalness: materials?.metalness || 0.3,
+      opacity: materials?.opacity || 1,
+      transparent: materials?.opacity < 1
     })
-  ), [color])
+  ), [color, materials])
 
   // Update model materials when color changes
   useEffect(() => {
@@ -125,20 +125,23 @@ function Furniture({ id, type, position, rotation, scale, color, onUpdate, onSel
           modelConfig={furnitureModels[type].geometry} 
           color={color}
           selected={selected}
+          materials={materials}
         />
       ) : null}
     </group>
   )
 }
 
-function GeometricModel({ modelConfig, color, selected }) {
+function GeometricModel({ modelConfig, color, selected, materials }) {
   const material = useMemo(() => (
     new THREE.MeshStandardMaterial({ 
       color: color,
-      roughness: 0.7,
-      metalness: 0.3
+      roughness: materials?.roughness || 0.7,
+      metalness: materials?.metalness || 0.3,
+      opacity: materials?.opacity || 1,
+      transparent: materials?.opacity < 1
     })
-  ), [color])
+  ), [color, materials])
 
   if (!modelConfig || !modelConfig.parts) {
     // Fallback if no geometric model is defined

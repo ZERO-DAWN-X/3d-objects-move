@@ -1,4 +1,4 @@
-import { useState, Suspense, useMemo } from 'react'
+import { useState, Suspense, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { HexColorPicker } from 'react-colorful'
@@ -19,7 +19,9 @@ function RoomDesigner() {
     updateFurniture,
     removeFurniture,
     saveDesign,
-    designs
+    designs,
+    activeDesign,
+    editDesign
   } = useDesignStore()
 
   const [showFurniturePicker, setShowFurniturePicker] = useState(false)
@@ -29,6 +31,23 @@ function RoomDesigner() {
   const [saveNotification, setSaveNotification] = useState(false)
   const [viewMode, setViewMode] = useState('3D') // '3D' or '2D'
   const [showDesignManager, setShowDesignManager] = useState(false)
+  const [designName, setDesignName] = useState('')
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+
+  // Update useEffect to properly handle active design
+  useEffect(() => {
+    if (activeDesign) {
+      // If there's an active design, update the design name
+      setDesignName(activeDesign.name)
+    } else {
+      // Reset states for new design
+      setShowSaveDialog(false)
+      setDesignName('')
+      setSelectedFurniture(null)
+      setShowColorPicker(false)
+      setShowFurniturePicker(false)
+    }
+  }, [activeDesign])
 
   const handleColorChange = (color) => {
     if (activeColorTarget === 'wall') {
@@ -64,19 +83,36 @@ function RoomDesigner() {
       position: [0, 0, 0],
       rotation: [0, 0, 0],
       scale: furnitureModels[type].defaultScale,
-      color: '#ffffff'
+      color: '#ffffff',
+      materials: {
+        roughness: 0.7,
+        metalness: 0.3,
+        opacity: 1
+      }
     })
     setShowFurniturePicker(false)
   }
 
+  // Update handleSaveDesign to handle updates to existing designs
   const handleSaveDesign = () => {
+    if (!designName.trim()) return
+
     const design = {
-      name: `Design ${designs.length + 1}`,
+      name: designName.trim(),
       timestamp: Date.now(),
       roomSettings: { ...roomSettings },
       furniture: furniture.map(item => ({ ...item }))
     }
-    saveDesign(design)
+
+    // If we're editing an existing design, update it instead of creating new
+    if (activeDesign) {
+      editDesign(activeDesign.id, design)
+    } else {
+      saveDesign(design)
+    }
+
+    setDesignName('')
+    setShowSaveDialog(false)
     setSaveNotification(true)
     setTimeout(() => setSaveNotification(false), 2000)
   }
@@ -92,9 +128,16 @@ function RoomDesigner() {
   // Add this handler for material updates
   const handleMaterialUpdate = (updates) => {
     if (selectedFurniture) {
+      const currentItem = furniture.find(f => f.id === selectedFurniture)
+      const currentMaterials = currentItem?.materials || {
+        roughness: 0.7,
+        metalness: 0.3,
+        opacity: 1
+      }
+      
       updateFurniture(selectedFurniture, {
         materials: {
-          ...furniture.find(f => f.id === selectedFurniture)?.materials,
+          ...currentMaterials,
           ...updates
         }
       })
@@ -104,7 +147,7 @@ function RoomDesigner() {
   return (
     <div className="flex h-[calc(100vh-64px)]">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg p-4 overflow-y-auto">
+      <div className="w-96 bg-white shadow-lg p-4 overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Tools</h2>
         
         {/* Add view mode toggle at the top */}
@@ -241,7 +284,7 @@ function RoomDesigner() {
         <div className="mt-6">
           <button
             className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
-            onClick={handleSaveDesign}
+            onClick={() => setShowSaveDialog(true)}
           >
             Save Design
           </button>
@@ -372,6 +415,11 @@ function RoomDesigner() {
                 <Furniture
                   key={item.id}
                   {...item}
+                  materials={item.materials || {
+                    roughness: 0.7,
+                    metalness: 0.3,
+                    opacity: 1
+                  }}
                   onUpdate={(id, updates) => updateFurniture(id, updates)}
                   onSelect={() => handleFurnitureSelect(item.id)}
                 />
@@ -445,6 +493,41 @@ function RoomDesigner() {
                 </button>
               </div>
               <DesignManager onClose={() => setShowDesignManager(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* Add this save dialog */}
+        {showSaveDialog && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-xl p-4 w-96">
+              <h3 className="text-lg font-semibold mb-4">Save Design</h3>
+              <input
+                type="text"
+                value={designName}
+                onChange={(e) => setDesignName(e.target.value)}
+                placeholder="Enter design name"
+                className="w-full p-2 border rounded mb-4"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+                  onClick={() => {
+                    setShowSaveDialog(false)
+                    setDesignName('')
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                  onClick={handleSaveDesign}
+                  disabled={!designName.trim()}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         )}

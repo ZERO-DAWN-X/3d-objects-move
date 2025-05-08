@@ -23,6 +23,11 @@ export const useDesignStore = create(
         furniture: [...state.furniture, { 
           ...item, 
           color: item.color || '#ffffff',
+          materials: item.materials || {
+            roughness: 0.7,
+            metalness: 0.3,
+            opacity: 1
+          },
           id: Date.now()
         }]
       })),
@@ -33,7 +38,11 @@ export const useDesignStore = create(
             ? { 
                 ...item, 
                 ...updates,
-                color: updates.color ? updates.color.toLowerCase() : item.color 
+                color: updates.color ? updates.color.toLowerCase() : item.color,
+                materials: updates.materials ? {
+                  ...item.materials,
+                  ...updates.materials
+                } : item.materials
               } 
             : item
         )
@@ -124,6 +133,18 @@ export const useDesignStore = create(
           }
         }
         return state
+      }),
+
+      clearCurrentDesign: () => set({
+        activeDesign: null,
+        roomSettings: {
+          width: 10,
+          length: 10,
+          height: 3,
+          wallColor: '#ffffff',
+          floorColor: '#f0f0f0'
+        },
+        furniture: []
       })
     }),
     {
