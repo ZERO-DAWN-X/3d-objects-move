@@ -3,6 +3,7 @@ import { useDesignStore } from '../../store/designStore'
 import { useAuthStore } from '../../store/authStore'
 import { HexColorPicker } from 'react-colorful'
 import { furnitureModels } from '../../config/furnitureModels'
+import FurniturePreview from '../../components/furniture/FurniturePreview'
 
 function AdminDashboard() {
   const { designs, roomTemplates, updateRoomTemplate, deleteRoomTemplate } = useDesignStore()
@@ -32,26 +33,19 @@ function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Furniture Management</h2>
-        <button 
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          onClick={() => setEditingFurniture({})}
-        >
-          Add New Furniture
-        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(furnitureModels).map(([id, furniture]) => (
-          <div key={id} className="border rounded-lg overflow-hidden">
-            <div className="aspect-square bg-gray-50 p-4">
-              <img 
-                src={furniture.thumbnail} 
-                alt={furniture.name}
-                className="w-full h-full object-contain"
-              />
+          <div key={id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            {/* 3D Preview */}
+            <div className="h-48">
+              <FurniturePreview type={id} />
             </div>
-            <div className="p-4 border-t bg-white">
-              <h3 className="font-medium text-gray-900 mb-1">{furniture.name}</h3>
+            
+            {/* Furniture Info */}
+            <div className="p-4 border-t border-gray-100">
+              <h3 className="font-medium text-gray-900 mb-2">{furniture.name}</h3>
               <p className="text-sm text-gray-500">
                 {furniture.dimensions.width}m × {furniture.dimensions.depth}m × {furniture.dimensions.height}m
               </p>
@@ -67,7 +61,7 @@ function AdminDashboard() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Room Templates</h2>
         <button 
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:shadow-md transition-all"
           onClick={() => setEditingTemplate({
             name: '',
             width: 4,
@@ -78,47 +72,71 @@ function AdminDashboard() {
             suggestedFurniture: []
           })}
         >
-          Add Template
+          + Add Template
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(roomTemplates).map(([id, template]) => (
-          <div key={id} className="border rounded-lg p-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium text-gray-900 mb-1">{template.name}</h3>
-                <p className="text-sm text-gray-500">
-                  {template.width}m × {template.length}m × {template.height}m
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <div 
-                  className="w-6 h-6 rounded border"
-                  style={{ backgroundColor: template.wallColor }}
-                  title="Wall Color"
-                />
-                <div 
-                  className="w-6 h-6 rounded border"
-                  style={{ backgroundColor: template.floorColor }}
-                  title="Floor Color"
-                />
+          <div key={id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-all">
+            {/* Template Preview */}
+            <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+              <div className="aspect-video bg-white rounded-lg border-2 border-gray-200 p-4 flex items-center justify-center">
+                <div className="relative w-full h-full">
+                  {/* Room Shape */}
+                  <div 
+                    className="absolute inset-4 rounded-lg"
+                    style={{ 
+                      backgroundColor: template.floorColor,
+                      border: `2px solid ${template.wallColor}` 
+                    }}
+                  >
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs text-gray-500">
+                      {template.width}m × {template.length}m
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="mt-4 flex gap-2">
-              <button 
-                onClick={() => setEditingTemplate({ id, ...template })}
-                className="text-blue-600 hover:text-blue-700 text-sm"
-              >
-                Edit
-              </button>
-              <button 
-                onClick={() => handleDeleteTemplate(id)}
-                className="text-red-600 hover:text-red-700 text-sm"
-              >
-                Delete
-              </button>
+
+            {/* Template Info */}
+            <div className="p-4 border-t border-gray-100">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-medium text-gray-900">{template.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {template.width}m × {template.length}m × {template.height}m
+                  </p>
+                </div>
+                <div className="flex gap-1.5">
+                  <div 
+                    className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
+                    style={{ backgroundColor: template.wallColor }}
+                    title="Wall Color"
+                  />
+                  <div 
+                    className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
+                    style={{ backgroundColor: template.floorColor }}
+                    title="Floor Color"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-4">
+                <button 
+                  onClick={() => setEditingTemplate({ id, ...template })}
+                  className="flex-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDeleteTemplate(id)}
+                  className="flex-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm font-medium"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}

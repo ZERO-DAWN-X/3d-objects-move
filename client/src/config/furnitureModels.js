@@ -129,20 +129,247 @@ export const furnitureModels = {
   },
   diningTable: {
     name: 'Dining Table',
-    thumbnail: '/furniture/dining-table.png',
-    dimensions: { width: 1.6, depth: 0.9, height: 0.75 },
-    defaultScale: 1
+    category: 'tables',
+    defaultScale: 1,
+    dimensions: { width: 2.0, height: 0.75, depth: 1.2 },
+    geometry: {
+      type: 'group',
+      parts: [
+        // Table top with beveled edges
+        {
+          geometry: new THREE.BoxGeometry(2.0, 0.05, 1.2),
+          position: [0, 0.75, 0],
+          material: { 
+            color: '#8B4513',
+            roughness: 0.3,
+            metalness: 0.1
+          }
+        },
+        // Center support
+        {
+          geometry: new THREE.CylinderGeometry(0.15, 0.25, 0.65, 8),
+          position: [0, 0.4, 0],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.1
+          }
+        },
+        // Base
+        {
+          geometry: new THREE.CylinderGeometry(0.6, 0.6, 0.05, 8),
+          position: [0, 0.025, 0],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.1
+          }
+        },
+        // Base supports
+        {
+          geometry: new THREE.BoxGeometry(0.8, 0.05, 0.2),
+          position: [0, 0.05, 0.4],
+          material: { color: '#654321' }
+        },
+        {
+          geometry: new THREE.BoxGeometry(0.8, 0.05, 0.2),
+          position: [0, 0.05, -0.4],
+          material: { color: '#654321' }
+        },
+        {
+          geometry: new THREE.BoxGeometry(0.2, 0.05, 0.8),
+          position: [0.4, 0.05, 0],
+          material: { color: '#654321' }
+        },
+        {
+          geometry: new THREE.BoxGeometry(0.2, 0.05, 0.8),
+          position: [-0.4, 0.05, 0],
+          material: { color: '#654321' }
+        }
+      ]
+    }
   },
   diningChair: {
     name: 'Dining Chair',
-    thumbnail: '/furniture/dining-chair.png',
-    dimensions: { width: 0.5, depth: 0.5, height: 0.9 },
-    defaultScale: 1
+    category: 'seating',
+    defaultScale: 1,
+    dimensions: { width: 0.5, height: 0.9, depth: 0.5 },
+    geometry: {
+      type: 'group',
+      parts: [
+        // Seat
+        {
+          geometry: new THREE.BoxGeometry(0.5, 0.05, 0.5),
+          position: [0, 0.45, 0],
+          material: { 
+            color: '#8B4513',
+            roughness: 0.3,
+            metalness: 0.1
+          }
+        },
+        // Seat padding
+        {
+          geometry: new THREE.BoxGeometry(0.48, 0.05, 0.48),
+          position: [0, 0.48, 0],
+          material: { 
+            color: '#A0522D',
+            roughness: 0.8,
+            metalness: 0
+          }
+        },
+        // Back frame
+        {
+          geometry: new THREE.BoxGeometry(0.5, 0.5, 0.05),
+          position: [0, 0.75, -0.225],
+          material: { 
+            color: '#8B4513',
+            roughness: 0.3,
+            metalness: 0.1
+          }
+        },
+        // Back padding
+        {
+          geometry: new THREE.BoxGeometry(0.48, 0.48, 0.05),
+          position: [0, 0.75, -0.2],
+          material: { 
+            color: '#A0522D',
+            roughness: 0.8,
+            metalness: 0
+          }
+        },
+        // Back supports
+        {
+          geometry: new THREE.BoxGeometry(0.05, 0.9, 0.05),
+          position: [0.2, 0.45, -0.225],
+          material: { color: '#8B4513' }
+        },
+        {
+          geometry: new THREE.BoxGeometry(0.05, 0.9, 0.05),
+          position: [-0.2, 0.45, -0.225],
+          material: { color: '#8B4513' }
+        },
+        // Legs
+        {
+          geometry: new THREE.CylinderGeometry(0.02, 0.02, 0.45),
+          position: [0.2, 0.225, 0.2],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.3
+          }
+        },
+        {
+          geometry: new THREE.CylinderGeometry(0.02, 0.02, 0.45),
+          position: [-0.2, 0.225, 0.2],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.3
+          }
+        },
+        {
+          geometry: new THREE.CylinderGeometry(0.02, 0.02, 0.45),
+          position: [0.2, 0.225, -0.2],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.3
+          }
+        },
+        {
+          geometry: new THREE.CylinderGeometry(0.02, 0.02, 0.45),
+          position: [-0.2, 0.225, -0.2],
+          material: { 
+            color: '#654321',
+            roughness: 0.5,
+            metalness: 0.3
+          }
+        }
+      ]
+    }
   },
   sideboard: {
     name: 'Sideboard',
-    thumbnail: '/furniture/sideboard.png',
-    dimensions: { width: 1.8, depth: 0.45, height: 0.85 },
-    defaultScale: 1
+    category: 'storage',
+    defaultScale: 1,
+    dimensions: { width: 1.8, height: 0.85, depth: 0.45 },
+    geometry: {
+      type: 'group',
+      parts: [
+        // Main body
+        {
+          geometry: new THREE.BoxGeometry(1.8, 0.85, 0.45),
+          position: [0, 0.425, 0],
+          material: { 
+            color: '#8B4513',
+            roughness: 0.3,
+            metalness: 0.1
+          }
+        },
+        // Top surface with slight overhang
+        {
+          geometry: new THREE.BoxGeometry(1.85, 0.03, 0.5),
+          position: [0, 0.85, 0],
+          material: { 
+            color: '#8B4513',
+            roughness: 0.3,
+            metalness: 0.1
+          }
+        },
+        // Doors (left)
+        {
+          geometry: new THREE.BoxGeometry(0.88, 0.7, 0.02),
+          position: [-0.45, 0.425, 0.22],
+          material: { 
+            color: '#A0522D',
+            roughness: 0.4,
+            metalness: 0.1
+          }
+        },
+        // Door handle left
+        {
+          geometry: new THREE.CylinderGeometry(0.01, 0.01, 0.1),
+          position: [-0.1, 0.425, 0.23],
+          rotation: [0, 0, Math.PI/2],
+          material: { 
+            color: '#B8860B',
+            roughness: 0.3,
+            metalness: 0.8
+          }
+        },
+        // Doors (right)
+        {
+          geometry: new THREE.BoxGeometry(0.88, 0.7, 0.02),
+          position: [0.45, 0.425, 0.22],
+          material: { 
+            color: '#A0522D',
+            roughness: 0.4,
+            metalness: 0.1
+          }
+        },
+        // Door handle right
+        {
+          geometry: new THREE.CylinderGeometry(0.01, 0.01, 0.1),
+          position: [0.1, 0.425, 0.23],
+          rotation: [0, 0, Math.PI/2],
+          material: { 
+            color: '#B8860B',
+            roughness: 0.3,
+            metalness: 0.8
+          }
+        },
+        // Feet
+        {
+          geometry: new THREE.BoxGeometry(0.1, 0.1, 0.45),
+          position: [-0.85, 0.05, 0],
+          material: { color: '#654321' }
+        },
+        {
+          geometry: new THREE.BoxGeometry(0.1, 0.1, 0.45),
+          position: [0.85, 0.05, 0],
+          material: { color: '#654321' }
+        }
+      ]
+    }
   }
 } 
