@@ -67,7 +67,7 @@ function Navbar() {
 
                 {/* Dropdown Menu */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 backdrop-blur-lg bg-white/80">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 backdrop-blur-lg bg-white">
                     {role === 'admin' && (
                       <Link
                         to="/admin"

@@ -192,7 +192,44 @@ export const useDesignStore = create(
       setRoomTemplate: (templateKey) => set((state) => ({
         selectedTemplate: templateKey,
         roomSettings: { ...state.roomTemplates[templateKey] }
-      }))
+      })),
+
+      updateRoomTemplate: (template) => set((state) => {
+        const updatedTemplates = { ...state.roomTemplates }
+        
+        if (template.id) {
+          // Update existing template
+          updatedTemplates[template.id] = {
+            name: template.name,
+            width: template.width,
+            length: template.length,
+            height: template.height,
+            wallColor: template.wallColor || '#f5f5f5',
+            floorColor: template.floorColor || '#e0e0e0',
+            suggestedFurniture: template.suggestedFurniture || []
+          }
+        } else {
+          // Create new template with generated ID
+          const newId = `template_${Date.now()}`
+          updatedTemplates[newId] = {
+            name: template.name,
+            width: template.width || 4,
+            length: template.length || 4,
+            height: template.height || 3,
+            wallColor: template.wallColor || '#f5f5f5',
+            floorColor: template.floorColor || '#e0e0e0',
+            suggestedFurniture: template.suggestedFurniture || []
+          }
+        }
+
+        return { roomTemplates: updatedTemplates }
+      }),
+
+      deleteRoomTemplate: (templateId) => set((state) => {
+        const updatedTemplates = { ...state.roomTemplates }
+        delete updatedTemplates[templateId]
+        return { roomTemplates: updatedTemplates }
+      })
     }),
     {
       name: 'furniture-design-storage',
