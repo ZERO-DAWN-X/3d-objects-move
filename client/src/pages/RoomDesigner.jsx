@@ -1,6 +1,6 @@
 import { useState, Suspense, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Environment, SoftShadows } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { HexColorPicker } from 'react-colorful'
 import Room from '../components/room/Room'
 import Furniture from '../components/furniture/Furniture'
@@ -484,49 +484,27 @@ function RoomDesigner() {
       {/* Viewport */}
       <div className="flex-1 bg-gray-100 relative">
         {viewMode === '3D' ? (
-          <Canvas shadows>
-            <SoftShadows size={2.5} samples={16} focus={0.5} />
-            
-            <PerspectiveCamera makeDefault position={[10, 5, 10]} />
-            
-            {/* Lighting setup for realism */}
-            <ambientLight intensity={0.3} />
-            <directionalLight
-              castShadow
-              position={[2.5, 8, 5]}
-              intensity={1.5}
-              shadow-mapSize={[1024, 1024]}
-            >
-              <orthographicCamera attach="shadow-camera" args={[-10, 10, -10, 10, 0.1, 50]} />
-            </directionalLight>
-            
-            {/* Subtle fill light */}
-            <pointLight position={[-10, 5, -10]} intensity={0.2} />
-            
-            {/* Add environment map for realistic reflections */}
-            <Environment preset="apartment" />
-            
-            <Room {...roomSettings} />
-            {furniture.map(item => (
-              <Furniture
-                key={item.id}
-                {...item}
-                materials={item.materials || {
-                  roughness: 0.7,
-                  metalness: 0.3,
-                  opacity: 1
-                }}
-                onUpdate={(id, updates) => updateFurniture(id, updates)}
-                onSelect={() => handleFurnitureSelect(item.id)}
-              />
-            ))}
-            
-            <OrbitControls 
-              minPolarAngle={0} 
-              maxPolarAngle={Math.PI / 2.1}
-              minDistance={2}
-              maxDistance={20}
-            />
+          <Canvas>
+            <PerspectiveCamera makeDefault position={[10, 10, 10]} />
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} />
+            <Suspense fallback={null}>
+              <Room {...roomSettings} />
+              {furniture.map(item => (
+                <Furniture
+                  key={item.id}
+                  {...item}
+                  materials={item.materials || {
+                    roughness: 0.7,
+                    metalness: 0.3,
+                    opacity: 1
+                  }}
+                  onUpdate={(id, updates) => updateFurniture(id, updates)}
+                  onSelect={() => handleFurnitureSelect(item.id)}
+                />
+              ))}
+            </Suspense>
+            <OrbitControls />
           </Canvas>
         ) : (
           <RoomView2D

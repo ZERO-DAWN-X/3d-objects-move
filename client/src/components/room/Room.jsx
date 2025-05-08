@@ -1,27 +1,13 @@
 import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Box, Grid, useTexture } from '@react-three/drei'
+import { Box } from '@react-three/drei'
 
-function Room({ 
-  width = 10, 
-  length = 10, 
-  height = 3, 
-  wallColor = '#ffffff', 
-  floorColor = '#f0f0f0',
-  showGrid = true 
-}) {
+function Room({ width = 10, length = 10, height = 3, wallColor = '#ffffff', floorColor = '#f0f0f0' }) {
   const roomRef = useRef()
-  
-  // Load textures for more realism
-  const textures = useTexture({
-    floorNormal: '/textures/wood_normal.jpg',
-    floorRoughness: '/textures/wood_roughness.jpg',
-    wallNormal: '/textures/wall_normal.jpg',
-    wallRoughness: '/textures/wall_roughness.jpg'
-  })
 
   useEffect(() => {
     if (roomRef.current) {
+      // Keep floor at y=0 (ground level)
       const floor = roomRef.current.children[0]
       if (floor) {
         floor.position.y = 0
@@ -50,93 +36,23 @@ function Room({
 
   return (
     <group ref={roomRef}>
-      {/* Floor with enhanced materials */}
-      <Box args={[width, 0.1, length]} position={[0, 0, 0]} receiveShadow>
-        <meshStandardMaterial 
-          color={floorColor}
-          normalMap={textures.floorNormal}
-          roughnessMap={textures.floorRoughness}
-          roughness={0.8}
-          metalness={0.2}
-        />
+      {/* Floor - keep at y=0 */}
+      <Box args={[width, 0.1, length]} position={[0, 0, 0]}>
+        <meshStandardMaterial color={floorColor} />
       </Box>
 
-      {/* Optional grid helper */}
-      {showGrid && (
-        <Grid
-          position={[0, 0.01, 0]}
-          args={[width, length, width, length]}
-          cellSize={1}
-          cellThickness={0.5}
-          cellColor="#6b7280"
-          sectionSize={1}
-          fadeDistance={30}
-          fadeStrength={1}
-        />
-      )}
-
-      {/* Walls with enhanced materials */}
-      <Box args={[0.1, height, length]} position={[-width/2, height/2, 0]} castShadow receiveShadow>
-        <meshStandardMaterial 
-          color={wallColor}
-          normalMap={textures.wallNormal}
-          roughnessMap={textures.wallRoughness}
-          roughness={0.95}
-          metalness={0}
-        />
+      {/* Walls - adjust height and position */}
+      <Box args={[0.1, height, length]} position={[-width/2, height/2, 0]}>
+        <meshStandardMaterial color={wallColor} />
       </Box>
-      <Box args={[0.1, height, length]} position={[width/2, height/2, 0]} castShadow receiveShadow>
-        <meshStandardMaterial 
-          color={wallColor}
-          normalMap={textures.wallNormal}
-          roughnessMap={textures.wallRoughness}
-          roughness={0.95}
-          metalness={0}
-        />
+      <Box args={[0.1, height, length]} position={[width/2, height/2, 0]}>
+        <meshStandardMaterial color={wallColor} />
       </Box>
-      <Box args={[width, height, 0.1]} position={[0, height/2, -length/2]} castShadow receiveShadow>
-        <meshStandardMaterial 
-          color={wallColor}
-          normalMap={textures.wallNormal}
-          roughnessMap={textures.wallRoughness}
-          roughness={0.95}
-          metalness={0}
-        />
+      <Box args={[width, height, 0.1]} position={[0, height/2, -length/2]}>
+        <meshStandardMaterial color={wallColor} />
       </Box>
-      <Box args={[width, height, 0.1]} position={[0, height/2, length/2]} castShadow receiveShadow>
-        <meshStandardMaterial 
-          color={wallColor}
-          normalMap={textures.wallNormal}
-          roughnessMap={textures.wallRoughness}
-          roughness={0.95}
-          metalness={0}
-        />
-      </Box>
-
-      {/* Add baseboard trim */}
-      <Box 
-        args={[0.05, 0.2, length]} 
-        position={[-width/2 + 0.025, 0.1, 0]}
-      >
-        <meshStandardMaterial color="#e5e5e5" />
-      </Box>
-      <Box 
-        args={[0.05, 0.2, length]} 
-        position={[width/2 - 0.025, 0.1, 0]}
-      >
-        <meshStandardMaterial color="#e5e5e5" />
-      </Box>
-      <Box 
-        args={[width, 0.2, 0.05]} 
-        position={[0, 0.1, -length/2 + 0.025]}
-      >
-        <meshStandardMaterial color="#e5e5e5" />
-      </Box>
-      <Box 
-        args={[width, 0.2, 0.05]} 
-        position={[0, 0.1, length/2 - 0.025]}
-      >
-        <meshStandardMaterial color="#e5e5e5" />
+      <Box args={[width, height, 0.1]} position={[0, height/2, length/2]}>
+        <meshStandardMaterial color={wallColor} />
       </Box>
     </group>
   )
