@@ -8,6 +8,7 @@ import { useDesignStore } from '../store/designStore'
 import FurniturePicker from '../components/furniture/FurniturePicker'
 import { furnitureModels } from '../config/furnitureModels'
 import RoomView2D from '../components/room/RoomView2D'
+import DesignManager from '../components/design/DesignManager'
 
 function RoomDesigner() {
   const {
@@ -27,6 +28,7 @@ function RoomDesigner() {
   const [selectedFurniture, setSelectedFurniture] = useState(null)
   const [saveNotification, setSaveNotification] = useState(false)
   const [viewMode, setViewMode] = useState('3D') // '3D' or '2D'
+  const [showDesignManager, setShowDesignManager] = useState(false)
 
   const handleColorChange = (color) => {
     if (activeColorTarget === 'wall') {
@@ -87,6 +89,18 @@ function RoomDesigner() {
     })
   }
 
+  // Add this handler for material updates
+  const handleMaterialUpdate = (updates) => {
+    if (selectedFurniture) {
+      updateFurniture(selectedFurniture, {
+        materials: {
+          ...furniture.find(f => f.id === selectedFurniture)?.materials,
+          ...updates
+        }
+      })
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-64px)]">
       {/* Sidebar */}
@@ -127,21 +141,21 @@ function RoomDesigner() {
             <label className="block text-sm text-gray-600">Width (m)</label>
             <input
               type="number"
+              min="1"
+              step="0.1"
               value={roomSettings.width}
-              onChange={(e) => setRoomSettings(prev => ({ ...prev, width: +e.target.value }))}
+              onChange={(e) => setRoomSettings({ ...roomSettings, width: Number(e.target.value) })}
               className="w-full p-2 border rounded"
             />
-          </div>
-          <div className="space-y-2">
             <label className="block text-sm text-gray-600">Length (m)</label>
             <input
               type="number"
+              min="1"
+              step="0.1"
               value={roomSettings.length}
-              onChange={(e) => setRoomSettings(prev => ({ ...prev, length: +e.target.value }))}
+              onChange={(e) => setRoomSettings({ ...roomSettings, length: Number(e.target.value) })}
               className="w-full p-2 border rounded"
             />
-          </div>
-          <div className="space-y-2">
             <label className="block text-sm text-gray-600">Height (m)</label>
             <input
               type="number"
@@ -231,12 +245,118 @@ function RoomDesigner() {
           >
             Save Design
           </button>
+          <button
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            onClick={() => setShowDesignManager(true)}
+          >
+            Manage Designs
+          </button>
           {saveNotification && (
             <div className="mt-2 text-center text-sm text-green-600">
               Design saved successfully!
             </div>
           )}
         </div>
+
+        {/* Selected Furniture Controls */}
+        {selectedFurniture && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg space-y-4">
+            <h3 className="font-medium text-gray-700 mb-4">Furniture Controls</h3>
+            
+            {/* Rotation Control */}
+            <div className="space-y-2">
+              <label className="block text-sm text-gray-600">Rotation</label>
+              <input
+                type="range"
+                min="0"
+                max="360"
+                value={furniture.find(f => f.id === selectedFurniture)?.rotation[1] * (180/Math.PI)}
+                onChange={(e) => updateFurniture(selectedFurniture, {
+                  rotation: [0, e.target.value * (Math.PI/180), 0]
+                })}
+                className="w-full"
+              />
+            </div>
+
+            {/* Scale Control */}
+            <div className="space-y-2">
+              <label className="block text-sm text-gray-600">Scale</label>
+              <input
+                type="range"
+                min="0.1"
+                max="2"
+                step="0.1"
+                value={furniture.find(f => f.id === selectedFurniture)?.scale || 1}
+                onChange={(e) => updateFurniture(selectedFurniture, {
+                  scale: parseFloat(e.target.value)
+                })}
+                className="w-full"
+              />
+            </div>
+
+            {/* Material Controls */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700">Material Settings</h4>
+              
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-600">Roughness</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.roughness || 0.7}
+                  onChange={(e) => handleMaterialUpdate({ roughness: parseFloat(e.target.value) })}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-600">Metalness</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.metalness || 0.3}
+                  onChange={(e) => handleMaterialUpdate({ metalness: parseFloat(e.target.value) })}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-600">Opacity</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.opacity || 1}
+                  onChange={(e) => handleMaterialUpdate({ opacity: parseFloat(e.target.value) })}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Color Control */}
+            <div className="space-y-2">
+              <label className="block text-sm text-gray-600">Color</label>
+              <button
+                className="w-full flex items-center justify-between p-2 bg-white rounded border hover:bg-gray-50"
+                onClick={() => {
+                  setActiveColorTarget('furniture')
+                  setShowColorPicker(true)
+                }}
+              >
+                <span className="text-sm">Change Color</span>
+                <div 
+                  className="w-6 h-6 rounded border"
+                  style={{ backgroundColor: furniture.find(f => f.id === selectedFurniture)?.color }}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Viewport */}
@@ -308,6 +428,24 @@ function RoomDesigner() {
               </button>
             </div>
             <FurniturePicker onSelect={handleAddFurniture} />
+          </div>
+        )}
+
+        {/* Add Design Manager Overlay */}
+        {showDesignManager && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-xl font-semibold">Manage Designs</h2>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowDesignManager(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <DesignManager onClose={() => setShowDesignManager(false)} />
+            </div>
           </div>
         )}
       </div>

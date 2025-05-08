@@ -4,7 +4,7 @@ import { useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { furnitureModels } from '../../config/furnitureModels'
 
-function Furniture({ id, type, position, rotation, scale, color, onUpdate, onSelect }) {
+function Furniture({ id, type, position, rotation, scale, color, onUpdate, onSelect, materials }) {
   const meshRef = useRef()
   const [hovered, setHovered] = useState(false)
   const [selected, setSelected] = useState(false)
@@ -127,21 +127,6 @@ function Furniture({ id, type, position, rotation, scale, color, onUpdate, onSel
           selected={selected}
         />
       ) : null}
-      {selected && (
-        <Html>
-          <div className="bg-white rounded-lg shadow-lg p-2" style={{ transform: 'translateX(50px)' }}>
-            <div className="text-sm mb-2">Rotation</div>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              value={rotation[1] * (180/Math.PI)}
-              onChange={(e) => handleRotate(e.target.value * (Math.PI/180))}
-              className="w-32"
-            />
-          </div>
-        </Html>
-      )}
     </group>
   )
 }
@@ -192,71 +177,6 @@ function ControlHandles({ onRotate }) {
         <meshStandardMaterial color="blue" transparent opacity={0.5} />
       </mesh>
     </group>
-  )
-}
-
-// Add scale controls
-function ScaleControls({ scale, onUpdate }) {
-  return (
-    <Html>
-      <div className="bg-white rounded-lg shadow-lg p-2" style={{ transform: 'translateY(-50px)' }}>
-        <div className="text-sm mb-2">Scale</div>
-        <input
-          type="range"
-          min="0.1"
-          max="2"
-          step="0.1"
-          value={scale}
-          onChange={(e) => onUpdate(parseFloat(e.target.value))}
-          className="w-32"
-        />
-      </div>
-    </Html>
-  )
-}
-
-// Add material controls
-function MaterialControls({ onUpdate, materials }) {
-  return (
-    <Html>
-      <div className="bg-white rounded-lg shadow-lg p-2">
-        <div className="space-y-2">
-          <div>
-            <label>Roughness</label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={materials.roughness}
-              onChange={(e) => onUpdate({ roughness: parseFloat(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label>Metalness</label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={materials.metalness}
-              onChange={(e) => onUpdate({ metalness: parseFloat(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label>Opacity</label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={materials.opacity}
-              onChange={(e) => onUpdate({ opacity: parseFloat(e.target.value) })}
-            />
-          </div>
-        </div>
-      </div>
-    </Html>
   )
 }
 
