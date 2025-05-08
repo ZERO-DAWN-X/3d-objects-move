@@ -1,101 +1,100 @@
 import { useNavigate } from 'react-router-dom'
-import { useDesignStore } from '../store/designStore'
+import { useAuthStore } from '../store/authStore'
 
 function Home() {
   const navigate = useNavigate()
-  const { designs, clearCurrentDesign, loadDesign } = useDesignStore()
-  const recentDesigns = designs.slice(-3) // Show last 3 designs
-
-  const handleStartNewDesign = () => {
-    clearCurrentDesign()
-    navigate('/designer')
-  }
-
-  const handleContinueDesign = (designId) => {
-    if (designId) {
-      loadDesign(designId)
-      navigate('/designer')
-    }
-  }
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Design Your Perfect Space
-        </h1>
-        <p className="text-xl text-gray-600 mb-8">
-          Visualize your furniture in 3D before making a purchase
-        </p>
-        <div className="flex justify-center gap-4">
-          <button 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-            onClick={handleStartNewDesign}
-          >
-            Start Design
-          </button>
-          <button 
-            className="bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200"
-            onClick={() => navigate('/gallery')}
-          >
-            View Gallery
-          </button>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h1 className="text-5xl font-bold text-gray-900 mb-6">
+                Design Your Dream Space with Ease
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Transform your ideas into reality with our intuitive 3D room designer. 
+                Create, customize, and visualize your perfect space in minutes.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => navigate(isAuthenticated ? '/designer' : '/register')}
+                  className="px-8 py-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Start Designing
+                </button>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="px-8 py-4 bg-white text-blue-600 rounded-lg font-medium border-2 border-blue-600 hover:bg-blue-50 transition-colors"
+                >
+                  View Gallery
+                </button>
+              </div>
+            </div>
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800"
+                alt="Modern room design"
+                className="rounded-lg shadow-2xl"
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg">
+                <p className="text-sm font-medium text-gray-900">1000+ Designs Created</p>
+                <p className="text-xs text-gray-500">Join our growing community</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {/* Recent Designs Section */}
-      {recentDesigns.length > 0 && (
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Designs</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {recentDesigns.map(design => (
-              <div key={design.id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                <h3 className="text-xl font-semibold mb-2">{design.name}</h3>
-                <p className="text-gray-500 text-sm mb-4">
-                  {new Date(design.timestamp).toLocaleDateString()}
-                </p>
-                <button
-                  onClick={() => handleContinueDesign(design.id)}
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  Continue Editing
-                </button>
+
+      {/* Showcase Section */}
+      <div className="bg-gray-50 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-16">
+            Featured Designs
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {showcaseImages.map((image, index) => (
+              <div key={index} className="relative group overflow-hidden rounded-lg">
+                <img
+                  src={image.url}
+                  alt={image.title}
+                  className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 className="text-white font-semibold text-lg">{image.title}</h3>
+                    <p className="text-white/80 text-sm">{image.description}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      )}
-
-      {/* Feature Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-        <FeatureCard 
-          title="2D & 3D Visualization"
-          description="View your room design from any angle"
-          icon="🎨"
-        />
-        <FeatureCard 
-          title="Room Customization"
-          description="Adjust colors, sizes, and layouts"
-          icon="🏠"
-        />
-        <FeatureCard 
-          title="Furniture Library"
-          description="Choose from our extensive collection"
-          icon="🪑"
-        />
       </div>
     </div>
   )
 }
 
-function FeatureCard({ title, description, icon }) {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
-    </div>
-  )
-}
+// Data for showcase section
+const showcaseImages = [
+  {
+    url: 'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?q=80&w=500',
+    title: 'Modern Living Room',
+    description: 'Minimalist design with natural lighting'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=500',
+    title: 'Cozy Bedroom',
+    description: 'Comfortable and stylish bedroom setup'
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=500',
+    title: 'Kitchen Design',
+    description: 'Contemporary kitchen with modern appliances'
+  }
+]
 
 export default Home 

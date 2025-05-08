@@ -126,5 +126,23 @@ export const furnitureModels = {
         }
       ]
     }
+  },
+  diningTable: {
+    name: 'Dining Table',
+    thumbnail: '/furniture/dining-table.png',
+    dimensions: { width: 1.6, depth: 0.9, height: 0.75 },
+    defaultScale: 1
+  },
+  diningChair: {
+    name: 'Dining Chair',
+    thumbnail: '/furniture/dining-chair.png',
+    dimensions: { width: 0.5, depth: 0.5, height: 0.9 },
+    defaultScale: 1
+  },
+  sideboard: {
+    name: 'Sideboard',
+    thumbnail: '/furniture/sideboard.png',
+    dimensions: { width: 1.8, depth: 0.45, height: 0.85 },
+    defaultScale: 1
   }
 } 

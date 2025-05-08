@@ -14,6 +14,45 @@ export const useDesignStore = create(
         floorColor: '#f0f0f0'
       },
       furniture: [],
+      roomTemplates: {
+        livingRoom: {
+          name: 'Living Room',
+          width: 6,
+          length: 8,
+          height: 3,
+          wallColor: '#f5f5f5',
+          floorColor: '#e0e0e0',
+          suggestedFurniture: ['sofa', 'coffeeTable', 'sideTable', 'armchair']
+        },
+        diningRoom: {
+          name: 'Dining Room',
+          width: 5,
+          length: 7,
+          height: 3,
+          wallColor: '#f0f0f0',
+          floorColor: '#d9d9d9',
+          suggestedFurniture: ['diningTable', 'diningChair', 'sideboard']
+        },
+        bedroom: {
+          name: 'Bedroom',
+          width: 4,
+          length: 6,
+          height: 3,
+          wallColor: '#f8f8f8',
+          floorColor: '#e8e8e8',
+          suggestedFurniture: ['bed', 'nightstand', 'wardrobe', 'dresser']
+        },
+        office: {
+          name: 'Home Office',
+          width: 4,
+          length: 4,
+          height: 3,
+          wallColor: '#f5f5f5',
+          floorColor: '#e5e5e5',
+          suggestedFurniture: ['desk', 'officeChair', 'bookshelf']
+        }
+      },
+      selectedTemplate: null,
 
       setRoomSettings: (settings) => set({
         roomSettings: settings
@@ -120,21 +159,6 @@ export const useDesignStore = create(
         designs: state.designs.filter(design => design.id !== id)
       })),
 
-      duplicateDesign: (id) => set((state) => {
-        const design = state.designs.find(d => d.id === id)
-        if (design) {
-          return {
-            designs: [...state.designs, {
-              ...design,
-              id: Date.now(),
-              name: `${design.name} (Copy)`,
-              timestamp: Date.now()
-            }]
-          }
-        }
-        return state
-      }),
-
       clearCurrentDesign: () => set({
         activeDesign: null,
         roomSettings: {
@@ -145,7 +169,30 @@ export const useDesignStore = create(
           floorColor: '#f0f0f0'
         },
         furniture: []
-      })
+      }),
+
+      resetDesign: () => set({
+        activeDesign: null,
+        roomSettings: {
+          width: 10,
+          length: 10,
+          height: 3,
+          wallColor: '#ffffff',
+          floorColor: '#f0f0f0'
+        },
+        furniture: []
+      }),
+
+      setActiveDesign: (design) => set({
+        activeDesign: design,
+        roomSettings: design.roomSettings,
+        furniture: design.furniture
+      }),
+
+      setRoomTemplate: (templateKey) => set((state) => ({
+        selectedTemplate: templateKey,
+        roomSettings: { ...state.roomTemplates[templateKey] }
+      }))
     }),
     {
       name: 'furniture-design-storage',

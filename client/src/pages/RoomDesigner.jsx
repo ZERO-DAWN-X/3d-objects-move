@@ -9,6 +9,7 @@ import FurniturePicker from '../components/furniture/FurniturePicker'
 import { furnitureModels } from '../config/furnitureModels'
 import RoomView2D from '../components/room/RoomView2D'
 import DesignManager from '../components/design/DesignManager'
+import RoomTemplateSelector from '../components/room/RoomTemplateSelector'
 
 function RoomDesigner() {
   const {
@@ -21,7 +22,9 @@ function RoomDesigner() {
     saveDesign,
     designs,
     activeDesign,
-    editDesign
+    editDesign,
+    roomTemplate,
+    setRoomTemplate
   } = useDesignStore()
 
   const [showFurniturePicker, setShowFurniturePicker] = useState(false)
@@ -146,29 +149,36 @@ function RoomDesigner() {
 
   return (
     <div className="flex h-[calc(100vh-64px)]">
-      {/* Sidebar */}
-      <div className="w-96 bg-white shadow-lg p-4 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Tools</h2>
-        
-        {/* Add view mode toggle at the top */}
-        <div className="mb-6">
-          <h3 className="font-medium text-gray-700 mb-2">View Mode</h3>
-          <div className="flex gap-2">
+      {/* Modern Sidebar */}
+      <div className="w-96 bg-white/80 backdrop-blur-md border-r border-gray-100 p-6 overflow-y-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            Design Tools
+          </h2>
+        </div>
+
+        {/* View Mode Selector */}
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+            View Mode
+          </h3>
+          <div className="bg-gray-50 p-1 rounded-lg flex gap-1">
             <button
-              className={`flex-1 p-2 rounded ${
-                viewMode === '3D' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all ${
+                viewMode === '3D'
+                  ? 'bg-white shadow-sm text-blue-600'
+                  : 'text-gray-600 hover:text-blue-600'
               }`}
               onClick={() => setViewMode('3D')}
             >
               3D View
             </button>
             <button
-              className={`flex-1 p-2 rounded ${
-                viewMode === '2D' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              className={`flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all ${
+                viewMode === '2D'
+                  ? 'bg-white shadow-sm text-blue-600'
+                  : 'text-gray-600 hover:text-blue-600'
               }`}
               onClick={() => setViewMode('2D')}
             >
@@ -177,229 +187,298 @@ function RoomDesigner() {
           </div>
         </div>
 
+        {/* Room Template Selection */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              Room Template
+            </h3>
+            {/* Optional: Add a reset button */}
+            <button
+              onClick={() => setRoomTemplate(null)}
+              className="text-xs text-gray-400 hover:text-gray-600"
+            >
+              Reset
+            </button>
+          </div>
+          <div className="bg-gray-50/50 backdrop-blur-sm p-3 rounded-xl">
+            <RoomTemplateSelector />
+          </div>
+        </div>
+
         {/* Room Settings */}
-        <div className="space-y-4 mb-6">
-          <h3 className="font-medium text-gray-700">Room Settings</h3>
-          <div className="space-y-2">
-            <label className="block text-sm text-gray-600">Width (m)</label>
-            <input
-              type="number"
-              min="1"
-              step="0.1"
-              value={roomSettings.width}
-              onChange={(e) => setRoomSettings({ ...roomSettings, width: Number(e.target.value) })}
-              className="w-full p-2 border rounded"
-            />
-            <label className="block text-sm text-gray-600">Length (m)</label>
-            <input
-              type="number"
-              min="1"
-              step="0.1"
-              value={roomSettings.length}
-              onChange={(e) => setRoomSettings({ ...roomSettings, length: Number(e.target.value) })}
-              className="w-full p-2 border rounded"
-            />
-            <label className="block text-sm text-gray-600">Height (m)</label>
-            <input
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={roomSettings.height}
-              onChange={handleHeightChange}
-              className="w-full p-2 border rounded"
-            />
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+            Room Dimensions
+          </h3>
+          <div className="space-y-3">
+            {[
+              { label: 'Width', key: 'width', unit: 'm' },
+              { label: 'Length', key: 'length', unit: 'm' },
+              { label: 'Height', key: 'height', unit: 'm' }
+            ].map((dimension) => (
+              <div key={dimension.key} className="relative">
+                <label className="text-sm text-gray-600 mb-1 block">
+                  {dimension.label}
+                </label>
+                <input
+                  type="number"
+                  min={dimension.key === 'height' ? '0.1' : '1'}
+                  step="0.1"
+                  value={roomSettings[dimension.key]}
+                  onChange={(e) => 
+                    setRoomSettings({ 
+                      ...roomSettings, 
+                      [dimension.key]: Number(e.target.value) 
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <span className="absolute right-3 top-9 text-gray-400 text-sm">
+                  {dimension.unit}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Colors */}
-        <div className="space-y-4 mb-6">
-          <h3 className="font-medium text-gray-700">Colors</h3>
-          <div className="space-y-2">
-            <button
-              className="w-full flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
-              onClick={() => {
-                setActiveColorTarget('wall')
-                setSelectedFurniture(null)
-                setShowColorPicker(true)
-              }}
-            >
-              <span>Wall Color</span>
-              <div 
-                className="w-6 h-6 rounded border"
-                style={{ backgroundColor: roomSettings.wallColor }}
-              />
-            </button>
-            <button
-              className="w-full flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
-              onClick={() => {
-                setActiveColorTarget('floor')
-                setSelectedFurniture(null)
-                setShowColorPicker(true)
-              }}
-            >
-              <span>Floor Color</span>
-              <div 
-                className="w-6 h-6 rounded border"
-                style={{ backgroundColor: roomSettings.floorColor }}
-              />
-            </button>
+        {/* Colors Section */}
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+            Room Colors
+          </h3>
+          <div className="space-y-3">
+            {[
+              { label: 'Wall Color', target: 'wall', color: roomSettings.wallColor },
+              { label: 'Floor Color', target: 'floor', color: roomSettings.floorColor }
+            ].map((item) => (
+              <button
+                key={item.target}
+                className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all group"
+                onClick={() => {
+                  setActiveColorTarget(item.target)
+                  setSelectedFurniture(null)
+                  setShowColorPicker(true)
+                }}
+              >
+                <span className="text-sm text-gray-700 group-hover:text-gray-900">
+                  {item.label}
+                </span>
+                <div className="flex items-center space-x-2">
+                  <div 
+                    className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-gray-400 group-hover:text-gray-600">
+                    →
+                  </span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Updated Furniture Section */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-gray-700">Furniture</h3>
+        {/* Furniture Section */}
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+            Furniture
+          </h3>
           <button
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            className="w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white py-2.5 px-4 rounded-lg hover:shadow-md transition-all mb-4"
             onClick={() => setShowFurniturePicker(true)}
           >
             Add Furniture
           </button>
+          
           {furniture.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-600">Placed Items</h4>
               {furniture.map(item => (
-                <div key={item.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-4 h-4 rounded border"
-                      style={{ backgroundColor: item.color }}
-                      onClick={() => handleFurnitureSelect(item.id)}
-                    />
-                    <span className="text-sm">{furnitureModels[item.type].name}</span>
+                <div 
+                  key={item.id} 
+                  className={`p-3 rounded-lg transition-all ${
+                    selectedFurniture === item.id 
+                      ? 'bg-blue-50 border border-blue-200' 
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-4 h-4 rounded-full border-2 border-white shadow-sm cursor-pointer"
+                        style={{ backgroundColor: item.color }}
+                        onClick={() => handleFurnitureSelect(item.id)}
+                      />
+                      <span className="text-sm text-gray-700">
+                        {furnitureModels[item.type].name}
+                      </span>
+                    </div>
+                    <button
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      onClick={() => removeFurniture(item.id)}
+                    >
+                      ×
+                    </button>
                   </div>
-                  <button
-                    className="text-red-600 hover:text-red-700 text-sm"
-                    onClick={() => removeFurniture(item.id)}
-                  >
-                    Remove
-                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Add Save Design button */}
-        <div className="mt-6">
+        {/* Selected Furniture Controls */}
+        {selectedFurniture && (
+          <div className="mt-8 pt-8 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                Furniture Controls
+              </h3>
+              <button
+                onClick={() => setSelectedFurniture(null)}
+                className="text-gray-400 hover:text-gray-500 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Control Sections */}
+            <div className="space-y-6">
+              {/* Rotation Control */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">Rotation</label>
+                  <span className="text-sm text-gray-500">
+                    {Math.round(furniture.find(f => f.id === selectedFurniture)?.rotation[1] * (180/Math.PI))}°
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  value={furniture.find(f => f.id === selectedFurniture)?.rotation[1] * (180/Math.PI)}
+                  onChange={(e) => updateFurniture(selectedFurniture, {
+                    rotation: [0, e.target.value * (Math.PI/180), 0]
+                  })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+              </div>
+
+              {/* Scale Control */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">Scale</label>
+                  <span className="text-sm text-gray-500">
+                    {furniture.find(f => f.id === selectedFurniture)?.scale || 1}x
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="2"
+                  step="0.1"
+                  value={furniture.find(f => f.id === selectedFurniture)?.scale || 1}
+                  onChange={(e) => updateFurniture(selectedFurniture, {
+                    scale: parseFloat(e.target.value)
+                  })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+              </div>
+
+              {/* Material Controls */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-gray-700">Material Properties</h4>
+                
+                {/* Roughness Control */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-gray-700">Roughness</label>
+                    <span className="text-sm text-gray-500">
+                      {furniture.find(f => f.id === selectedFurniture)?.materials?.roughness || 0.7}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={furniture.find(f => f.id === selectedFurniture)?.materials?.roughness || 0.7}
+                    onChange={(e) => handleMaterialUpdate({ roughness: parseFloat(e.target.value) })}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+
+                {/* Metalness Control */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-gray-700">Metalness</label>
+                    <span className="text-sm text-gray-500">
+                      {furniture.find(f => f.id === selectedFurniture)?.materials?.metalness || 0.3}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={furniture.find(f => f.id === selectedFurniture)?.materials?.metalness || 0.3}
+                    onChange={(e) => handleMaterialUpdate({ metalness: parseFloat(e.target.value) })}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+
+                {/* Opacity Control */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-gray-700">Opacity</label>
+                    <span className="text-sm text-gray-500">
+                      {furniture.find(f => f.id === selectedFurniture)?.materials?.opacity || 1}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={furniture.find(f => f.id === selectedFurniture)?.materials?.opacity || 1}
+                    onChange={(e) => handleMaterialUpdate({ opacity: parseFloat(e.target.value) })}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Color Control */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-700">Color</label>
+                  <button
+                    onClick={() => {
+                      setActiveColorTarget('furniture')
+                      setShowColorPicker(true)
+                    }}
+                    className="flex items-center space-x-2 group"
+                  >
+                    <div 
+                      className="w-6 h-6 rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110"
+                      style={{ backgroundColor: furniture.find(f => f.id === selectedFurniture)?.color }}
+                    />
+                    <span className="text-sm text-gray-500 group-hover:text-blue-600">Change</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="space-y-3 mt-8">
           <button
-            className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2.5 px-4 rounded-lg hover:shadow-md transition-all"
             onClick={() => setShowSaveDialog(true)}
           >
             Save Design
           </button>
-          <button
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-            onClick={() => setShowDesignManager(true)}
-          >
-            Manage Designs
-          </button>
-          {saveNotification && (
-            <div className="mt-2 text-center text-sm text-green-600">
-              Design saved successfully!
-            </div>
-          )}
         </div>
-
-        {/* Selected Furniture Controls */}
-        {selectedFurniture && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg space-y-4">
-            <h3 className="font-medium text-gray-700 mb-4">Furniture Controls</h3>
-            
-            {/* Rotation Control */}
-            <div className="space-y-2">
-              <label className="block text-sm text-gray-600">Rotation</label>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={furniture.find(f => f.id === selectedFurniture)?.rotation[1] * (180/Math.PI)}
-                onChange={(e) => updateFurniture(selectedFurniture, {
-                  rotation: [0, e.target.value * (Math.PI/180), 0]
-                })}
-                className="w-full"
-              />
-            </div>
-
-            {/* Scale Control */}
-            <div className="space-y-2">
-              <label className="block text-sm text-gray-600">Scale</label>
-              <input
-                type="range"
-                min="0.1"
-                max="2"
-                step="0.1"
-                value={furniture.find(f => f.id === selectedFurniture)?.scale || 1}
-                onChange={(e) => updateFurniture(selectedFurniture, {
-                  scale: parseFloat(e.target.value)
-                })}
-                className="w-full"
-              />
-            </div>
-
-            {/* Material Controls */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-gray-700">Material Settings</h4>
-              
-              <div className="space-y-2">
-                <label className="block text-sm text-gray-600">Roughness</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.roughness || 0.7}
-                  onChange={(e) => handleMaterialUpdate({ roughness: parseFloat(e.target.value) })}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm text-gray-600">Metalness</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.metalness || 0.3}
-                  onChange={(e) => handleMaterialUpdate({ metalness: parseFloat(e.target.value) })}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm text-gray-600">Opacity</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={furniture.find(f => f.id === selectedFurniture)?.materials?.opacity || 1}
-                  onChange={(e) => handleMaterialUpdate({ opacity: parseFloat(e.target.value) })}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            {/* Color Control */}
-            <div className="space-y-2">
-              <label className="block text-sm text-gray-600">Color</label>
-              <button
-                className="w-full flex items-center justify-between p-2 bg-white rounded border hover:bg-gray-50"
-                onClick={() => {
-                  setActiveColorTarget('furniture')
-                  setShowColorPicker(true)
-                }}
-              >
-                <span className="text-sm">Change Color</span>
-                <div 
-                  className="w-6 h-6 rounded border"
-                  style={{ backgroundColor: furniture.find(f => f.id === selectedFurniture)?.color }}
-                />
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Viewport */}
@@ -463,71 +542,222 @@ function RoomDesigner() {
           </div>
         )}
 
+        {/* Furniture Picker Modal */}
         {showFurniturePicker && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                         bg-white rounded-lg shadow-xl w-96 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="font-semibold">Add Furniture</h3>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => setShowFurniturePicker(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <FurniturePicker onSelect={handleAddFurniture} />
-          </div>
-        )}
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-xl w-[800px] max-h-[80vh] transform transition-all">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                      Add Furniture
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Choose furniture to add to your room
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowFurniturePicker(false)}
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-        {/* Add Design Manager Overlay */}
-        {showDesignManager && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="text-xl font-semibold">Manage Designs</h2>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowDesignManager(false)}
-                >
-                  ✕
-                </button>
+                {/* Search and Categories */}
+                <div className="mt-4 flex items-center space-x-4">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      placeholder="Search furniture..."
+                      className="w-full px-4 py-2 pl-10 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <svg
+                      className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                      All
+                    </button>
+                    <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+                      Seating
+                    </button>
+                    <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+                      Storage
+                    </button>
+                  </div>
+                </div>
               </div>
-              <DesignManager onClose={() => setShowDesignManager(false)} />
+
+              {/* Furniture Grid */}
+              <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 200px)' }}>
+                <div className="grid grid-cols-3 gap-4">
+                  {Object.entries(furnitureModels).map(([id, item]) => (
+                    <button
+                      key={id}
+                      className="group bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
+                      onClick={() => handleAddFurniture(id)}
+                    >
+                      <div className="aspect-square bg-gray-50 rounded-lg mb-3 p-4 group-hover:bg-blue-50 transition-colors">
+                        <img
+                          src={item.thumbnail}
+                          alt={item.name}
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {item.name}
+                        </h4>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {item.dimensions.width}m × {item.dimensions.depth}m × {item.dimensions.height}m
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-100">
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-500">
+                    Click on an item to add it to your room
+                  </p>
+                  <button
+                    onClick={() => setShowFurniturePicker(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Add this save dialog */}
+        {/* Save Design Dialog */}
         {showSaveDialog && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-xl p-4 w-96">
-              <h3 className="text-lg font-semibold mb-4">Save Design</h3>
-              <input
-                type="text"
-                value={designName}
-                onChange={(e) => setDesignName(e.target.value)}
-                placeholder="Enter design name"
-                className="w-full p-2 border rounded mb-4"
-                autoFocus
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-                  onClick={() => {
-                    setShowSaveDialog(false)
-                    setDesignName('')
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  onClick={handleSaveDesign}
-                  disabled={!designName.trim()}
-                >
-                  Save
-                </button>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-xl w-[450px] transform transition-all">
+              {/* Dialog Header */}
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                      {activeDesign ? 'Update Design' : 'Save Design'}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {activeDesign ? 'Update your existing design' : 'Save your design to access it later'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowSaveDialog(false)
+                      setDesignName('')
+                    }}
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
+
+              {/* Dialog Content */}
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="designName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Design Name
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="designName"
+                        type="text"
+                        value={designName}
+                        onChange={(e) => setDesignName(e.target.value)}
+                        placeholder="Enter a name for your design"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-10"
+                        autoFocus
+                      />
+                      {designName && (
+                        <button
+                          onClick={() => setDesignName('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Design Summary */}
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <h4 className="text-sm font-medium text-gray-700">Design Summary</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="space-y-1">
+                        <p className="text-gray-500">Room Dimensions</p>
+                        <p className="text-gray-700">
+                          {roomSettings.width}m × {roomSettings.length}m × {roomSettings.height}m
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-gray-500">Furniture Items</p>
+                        <p className="text-gray-700">{furniture.length} pieces</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dialog Footer */}
+              <div className="p-6 border-t border-gray-100">
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setShowSaveDialog(false)
+                      setDesignName('')
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveDesign}
+                    disabled={!designName.trim()}
+                    className={`px-6 py-2 text-sm font-medium rounded-lg transition-all
+                      ${designName.trim()
+                        ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white hover:shadow-md'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                  >
+                    {activeDesign ? 'Update Design' : 'Save Design'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Success Notification */}
+              {saveNotification && (
+                <div className="absolute top-4 right-4 bg-green-50 text-green-700 px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in-down">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Design saved successfully!</span>
+                </div>
+              )}
             </div>
           </div>
         )}
